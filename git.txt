@@ -9,6 +9,9 @@ rm
 
 4/ tao file
 - vi tenfile.txt
+  + Nhan i de edit file
+  + Nhan Esc + : w de save file
+  + Nhan Esc + : q de quit
 - touch tenfike.txt
 - echo "content" > tenfile.txt
 
