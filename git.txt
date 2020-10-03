@@ -12,6 +12,7 @@ rm
   + Nhan i de edit file
   + Nhan Esc + : w de save file
   + Nhan Esc + : q de quit
+  + Nhan Esc + / keyword : Tim kiem trong vi
 - touch tenfike.txt
 - echo "content" > tenfile.txt
 

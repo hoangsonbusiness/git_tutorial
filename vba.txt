@@ -1,0 +1,56 @@
+Sub Replace_Scr_Act()
+
+    Dim i, j, first, last As Integer
+
+    Dim flag As Boolean
+    
+    Dim lRow As Long
+    Dim lCol As Long
+    
+    Dim file As String
+    Dim wb As Workbook
+    Dim ws As Worksheet
+           
+    file = TextBox1.Value
+    Set wb = Workbooks.Open(file)
+    
+    Set ws = wb.Worksheets("Sheet2")
+    
+     'Find the last non-blank cell in column A(1)
+    lRow = ws.Cells(ws.Rows.Count, 1).End(xlUp).Row
+
+    flag = False
+
+    first = 0
+    last = 0
+    j = 1
+    For i = 2 To lRow
+    
+    
+        If i = 2 Then
+            first = i
+            flag = True
+        Else
+            If ws.Range("A" & i).Value <> ws.Range("A" & i - 1).Value Or i = lRow Then
+                If flag And first < last Then
+                    first = last + 1
+                End If
+                
+                If i = lRow Then
+                    last = i
+                Else
+                    last = i - 1
+                End If
+                
+                For first = first To last
+                    ws.Range("A" & first).Value = j
+                    ws.Range("B" & first).Value = j
+                    ws.Range("C" & first).Value = j
+                Next first
+                j = j + 1
+            End If
+        End If
+    
+    Next i
+       
+End Sub
