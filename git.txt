@@ -1,0 +1,134 @@
+1/ chuyển sang ổ d
+- cd /d
+
+2/ tao folder 
+- mkdir
+
+3/ xoa thu muc/file
+rm
+
+4/ tao file
+- vi tenfile.txt
+- touch tenfike.txt
+- echo "content" > tenfile.txt
+
+5/ xem list file trong folder
+- ls
+
+==========================================
+
+Cac branch trong repo
+- Master 
+- Realease ( Merge tu develop )
+- Develop ( Merge tu feature )
+- Feature ( dev lam )
+- Hostfix
+==========================================
+
+6/ create repo
+- git init
+
+7/ add file
+- git add file.xxx
+
+8/ check info config
+- git config --list
+
+9/ config username 
+- git config --global user.name "xxx"
+
+10/ config email
+- git config --global user.email "yyy"
+
+11/ commit file len local repo
+- git comment -m "Comment" 
+
+12/ display user name
+- git config user.name
+
+13/ display user email 
+- git config user.email : 
+
+14/ Thay doi ( add/xoa file - thay doi comment)
+- gid add ten_file
+- git commit --amend -m "New Comment"
+
+15/ Bỏ tập tin ra khỏi Staging Area
+- git reset HEAD tên_file
+
+16/ List branch
+- git branch
+
+17/ tao branch
+- git branch ten_branch
+
+18/ switch branch
+- git checkout ten_branch
+
+19/ tao branch va switch qua branch
+- git checkout -b ten_branch
+
+20/ Xem status git
+- git status
+
+21/ Merge branch
+- git merge ten_branch_co_file_can_merge
+
+22/ Xu ly conflict khi merge : 
+- git merge ten_branch_co_file_can_merge
+(edit lai code merge -> Add -> Commmit)
+
+23/ Xoa branch - phai dung ngoai branch can xoa truoc khi xoa
+- git branch -d ten_branch
+
+24/ checkout/undo/revert file
+- git checkout -- ten_file
+
+25/ Undo commit
+- git reset --soft HEAD~1  ( 1 là lần commit cuối cùng , có thể thay đổi , reset nhung van giu lai file vua thay doi )
+- git reset --hard HEAD~1 ( 1 là lần commit cuối cùng , có thể thay đổi , reset nhung KHONG giu lai file vua thay doi )
+
+26/ Xóa hết các file chưa commit
+- git clean --force
+
+27/ Thay đổi tên author
+- git config user.name "xxx"
+- git config user.email yyy
+- git commit --amend --reset-author
+
+28/ Add remote repo
+- git remote add origin github_url
+
+29/ CHeck xem da add remote repo url chua
+- git remote -v
+
+30/ Thay doi link remote 
+- git remote set-url origin github_url
+
+31/ Push len remote repo
+- git push orgin ten_branch_remote
+
+32/ clone github
+- git clone github_url
+
+33/ Khi switch sang branch khac, luu cac file modified ma chua commit lai ( neu ko thuc hien thi se mat het cac file modify chua commit )
+- git stash save
+
+34/ xem list stash
+- git stash list
+
+35/ lay lai cac file da luu tren stash
+- git stash apply stash@{0} - 0 co the thay doi
+
+36/ xoa cac stash
+- git stash drop stash@{0} - 0 co the thay doi
+
+37/ setup chan commit cac file/folder thi su dung
+ .gitignore
+ /tenfile.txt
+ /ten_folder/* 
+ !/ten_folder/ten_file.txt (File nay dc commit len git ) 
+
+38/ tag -- giong comment
+
+
