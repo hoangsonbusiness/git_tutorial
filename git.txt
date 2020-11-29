@@ -1,4 +1,4 @@
-1/ chuyển sang ổ d
+﻿1/ chuyển sang ổ d
 - cd /d
 
 2/ tao folder 
@@ -110,7 +110,7 @@ Cac branch trong repo
 - git remote set-url origin github_url
 
 31/ Push len remote repo
-- git push orgin ten_branch_remote
+- git push origin ten_branch_remote
 
 32/ clone github
 - git clone github_url
