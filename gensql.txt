@@ -1,6 +1,9 @@
 Sub GenSQL()
-    Dim last, last_header, k As Integer
-    Dim table_name, query_tmp, query, delete_query_tmp, delete_query, const_insert, const_value As String
+    Dim last, last_header, k, m, last_row_pk, last_col_pk As Integer
+    Dim table_name, query_tmp, query, delete_query_tmp, delete_query, const_insert, const_value, value As String
+    Dim a1, a2 As Integer
+    Dim str_search, rs, str_column As String
+    Dim IDposition, header_position As Range
     
     Dim lRow As Long
     Dim lCol As Long
@@ -9,78 +12,166 @@ Sub GenSQL()
     const_insert = "INSERT INTO "
     const_value = " ) VALUES ("
     
-    'Find the last non-blank cell in column A(1)
     lRow = Sheets("Data").Cells(Rows.Count, 1).End(xlUp).Row
     
     For i = 1 To lRow
         last = Sheets("Data").Cells(i, Columns.Count).End(xlToLeft).Column
-        If last = 1 And Sheets("Data").Cells(i, 1) <> "" Then
+        value = Sheets("Data").Cells(i, 1)
+        
+        'Find table
+        If last = 1 And value <> "" Then
+        
+            'Init insert query
             query_tmp = const_insert & Sheets("Data").Cells(i, 1) & " ( "
+            'Init delete query
             delete_query_tmp = "DELETE FROM " & Sheets("Data").Cells(i, 1) & " WHERE "
+            'Find number column of table
             last_header = Sheets("Data").Cells(i + 1, Columns.Count).End(xlToLeft).Column
             
+            'Process append header table
             For j = 1 To last_header
                 If j = last_header Then
                     query_tmp = query_tmp & Sheets("Data").Cells(i + 1, j) & const_value
                 Else
                     query_tmp = query_tmp & Sheets("Data").Cells(i + 1, j) & " , "
                 End If
-                
             Next j
         
+            'Process append insert/delete value
             k = i + 2
+            'Loop all row of table
             For k = k To lRow
-                If Sheets("Data").Cells(k, 1) = "" Then
+                'Break loop once not contain table or go to next table
+                If Sheets("Data").Cells(k, 1) = "" Or Sheets("Data").Cells(k, Columns.Count).End(xlToLeft).Column = 1 Then
                     Exit For
                 Else
                     
+                    'Reset init insert/delete query
                     query = query_tmp
                     delete_query = delete_query_tmp
                     
+                    'Append insert/delete value
                     For m = 1 To last_header
                     
+                        'Append delete value
                         If m = 1 Then
-                            delete_query = delete_query & Sheets("Data").Cells(i + 1, 1) & " = '" & Sheets("Data").Cells(k, 1) & "';"
-                            Sheets("GenSQL").Cells(k, 2).Value = delete_query
-                        End If
-                    
-                        If m = last_header Then
-                            If IsDate(Sheets("Data").Cells(k, m)) = True Then
-                                If Len(Sheets("Data").Cells(k, m)) = 10 Then
-                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd') "
-                                Else
-                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd hh24:mi:ss') "
-                                End If
+                            'delete_query = delete_query & Sheets("Data").Cells(i + 1, 1) & " = '" & Sheets("Data").Cells(k, 1) & "';"
+                            'Sheets("GenSQL").Cells(k, 2).value = delete_query
+                            
+                            
+                            str_search = Sheets("Data").Cells(i, 1)
+                            last_row_pk = Sheets("PrimaryKey").Cells(Rows.Count, 1).End(xlUp).Row
+                            'Find which the Id we want"
+                            Set IDposition = Sheets("PrimaryKey").Range("A1:A" & last_row_pk).Find(str_search, LookIn:=xlValues, Lookat:=xlWhole)
+                        
+                            If Not IDposition Is Nothing Then
+                                rs = Sheets("PrimaryKey").Cells(IDposition.Row, 1).value
+                                last_col_pk = Sheets("PrimaryKey").Cells(IDposition.Row, Columns.Count).End(xlToLeft).Column
+                                
+                                For n = 2 To last_col_pk
+                                    str_column = Sheets("PrimaryKey").Cells(IDposition.Row, n)
+                                    Set header_position = Sheets("Data").Range("A" & (i + 1) & ":" & ConvertToLetter(last_header) & (i + 1)).Find(str_column, LookIn:=xlValues, Lookat:=xlWhole)
+                                    If n = last_col_pk Then
+                                        delete_query = delete_query & str_column & " = '" & Sheets("Data").Cells(k, header_position.Column) & "';"
+                                    Else
+                                        delete_query = delete_query & str_column & " = '" & Sheets("Data").Cells(k, header_position.Column) & "' AND "
+                                    End If
+                                    
+                                Next n
+                                
+                                Sheets("GenSQL").Cells(k, 2).value = delete_query
+                                
+                                'MsgBox delete_query
+                                
+                                
                             Else
-                                query = query & "'" & Sheets("Data").Cells(k, m) & "'"
+                                MsgBox "Primary key is not defined !!!"
                             End If
                             
-                            query = query & " ); "
-                            Sheets("GenSQL").Cells(k, 1).Value = query
+                            
+                            
+                        End If
+                    
+                        'Append insert value
+                        If m = last_header Then
+                            query = handleDate(k, m, query, True)
+                            'Check date to format date time
+'                            If IsDate(Sheets("Data").Cells(k, m)) = True Then
+'                                If Len(Sheets("Data").Cells(k, m)) = 10 Then
+'                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd') "
+'                                Else
+'                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd hh24:mi:ss') "
+'                                End If
+'                            Else
+'                                query = query & "'" & Sheets("Data").Cells(k, m) & "'"
+'                            End If
+'
+'                            query = query & " ); "
+'                            Sheets("GenSQL").Cells(k, 1).value = query
                         Else
-                            If IsDate(Sheets("Data").Cells(k, m)) = True Then
-                                If Len(Sheets("Data").Cells(k, m)) = 10 Then
-                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd') , "
-                                Else
-                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd hh24:mi:ss') ,"
-                                End If
-                            Else
-                                query = query & "'" & Sheets("Data").Cells(k, m) & " ', "
-                            End If
+                            query = handleDate(k, m, query, False)
+                            'Check date to format date time
+'                            If IsDate(Sheets("Data").Cells(k, m)) = True Then
+'                                If Len(Sheets("Data").Cells(k, m)) = 10 Then
+'                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd') , "
+'                                Else
+'                                    query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd hh24:mi:ss') ,"
+'                                End If
+'                            Else
+'                                query = query & "'" & Sheets("Data").Cells(k, m) & " ', "
+'                            End If
                             
                         End If
                     Next m
-                    
-                    
-                    
-                    
+    
                 End If
             Next k
-            
-            
-            
         End If
         
     Next i
-
+    
+    MsgBox "GenSQL done!!!"
+    
 End Sub
+
+Public Function handleDate(ByVal k As Integer, ByVal m As Integer, ByVal query As String, lastFlag As Boolean) As String
+    'Check date to format date time
+    If IsDate(Sheets("Data").Cells(k, m)) = True Then
+        If Len(Sheets("Data").Cells(k, m)) = 10 Then
+            query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd') "
+            If lastFlag = False Then
+                query = query & ","
+            End If
+        Else
+            query = query & "TO_DATE(" & "'" & Sheets("Data").Cells(k, m) & "', 'yyyy-mm-dd hh24:mi:ss') "
+            If lastFlag = False Then
+                query = query & ","
+            End If
+        End If
+    Else
+        query = query & "'" & Sheets("Data").Cells(k, m) & "'"
+        If lastFlag = False Then
+                query = query & ","
+            End If
+    End If
+    
+    If lastFlag Then
+        query = query & " ); "
+        Sheets("GenSQL").Cells(k, 1).value = query
+    End If
+    'Return query
+    handleDate = query
+End Function
+
+Public Function ConvertToLetter(ByVal iCol As Integer) As String
+    Dim iAlpha As Integer
+    Dim iRemainder As Integer
+    iAlpha = Int(iCol / 27)
+    iRemainder = iCol - (iAlpha * 26)
+    If iAlpha > 0 Then
+        ConvertToLetter = Chr(iAlpha + 64)
+    End If
+    If iRemainder > 0 Then
+        ConvertToLetter = ConvertToLetter & Chr(iRemainder + 64)
+    End If
+End Function
